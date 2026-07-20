@@ -1,16 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from classifier import get_classification
 from lookup import lookup
 
 app = FastAPI()
 
-@app.get('/predict_garbage')
-def garbage_classification():
-    response = get_classification()
-    result = lookup.get(response)
+@app.post('/predict_garbage')
+async def garbage_classification(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    
+    class_idx = get_classification(image_bytes)
+    result = lookup.get(class_idx, "Unknown")
     
     return {
-        'reponse':result,
-        'status':200
+        'response': result,
+        'status': 200
     }
-    
