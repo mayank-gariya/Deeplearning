@@ -10,7 +10,7 @@ import os
 import urllib.request
 
 MODEL_PATH = 'garbage_classifier.keras'
-MODEL_URL = 'https://drive.google.com/uc?export=download&id=11hh8UaKZERZwbMUIcP7ntIeWdcTTt41o'
+MODEL_URL = 'https://www.dropbox.com/scl/fi/tg8v54lnwyxjz7dmzpd6q/garbage_classifier.keras?rlkey=he9hxg7vouwct907bnkwc9jho&st=xwzz9t0x&dl=1'
 
 def load_garbage_model():
     """Builds and loads weights into the model ONCE at startup."""
