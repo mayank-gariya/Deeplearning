@@ -7,7 +7,8 @@ from tensorflow.keras.applications.resnet50 import preprocess_input as resnet_pr
 from tensorflow.keras.applications.vgg16 import preprocess_input as vgg_preprocess
 from tensorflow.keras import layers 
 
-def get_classification(image):
+def load_garbage_model():
+    """Builds and loads weights into the model ONCE at startup."""
     number_classes = 6 
 
     resnet_input = tf.keras.Input(shape=(224, 224, 3), name='resnet_input')
@@ -22,11 +23,8 @@ def get_classification(image):
     base_resnet.trainable = False
     base_vgg.trainable = False
 
-    resnet_features = base_resnet.output
-    vgg_features = base_vgg.output
-
-    resnet_features = GlobalAveragePooling2D()(resnet_features)
-    vgg_features = GlobalAveragePooling2D()(vgg_features)
+    resnet_features = GlobalAveragePooling2D()(base_resnet.output)
+    vgg_features = GlobalAveragePooling2D()(base_vgg.output)
 
     combined_features = Concatenate()([resnet_features, vgg_features])
     combined_features = Dense(128, activation='relu')(combined_features)
@@ -34,15 +32,18 @@ def get_classification(image):
     combined_features = Dropout(0.5)(combined_features)
     output = Dense(number_classes, activation='softmax')(combined_features)
 
-    model_loaded = Model(inputs=[resnet_input, vgg_input], outputs=output)
+    model = Model(inputs=[resnet_input, vgg_input], outputs=output)
+    model.load_weights('garbage_classifier.keras')
+    return model
 
-    model_loaded.load_weights('garbage_classifier.keras')
+model_loaded = load_garbage_model()
 
-    img_path = image
-    img = tf.keras.utils.load_img(img_path, target_size=(224, 224))
-    img_array = tf.keras.utils.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0)  
-
+def get_classification(img_bytes):
+    """Takes image bytes, processes them, and returns the class index."""
+    # Convert uploaded raw bytes directly into a TensorFlow tensor
+    img = tf.image.decode_jpeg(img_bytes, channels=3)
+    img = tf.image.resize(img, [224, 224])
+    img_array = tf.expand_dims(img, 0)  
 
     predictions = model_loaded.predict({'resnet_input': img_array, 'vgg_input': img_array})
-    return np.argmax(predictions)
+    return int(np.argmax(predictions)) # Cast to standard python int for JSON serialization
