@@ -4,6 +4,14 @@ from lookup import lookup
 
 app = FastAPI()
 
+@app.get('/')
+async def home():
+    return {
+        'message':'this is garbage classifer than can classify garbage',
+        'test_accuracy':97,
+        'validation_accuracy':92
+    }
+    
 @app.post('/predict_garbage')
 async def garbage_classification(file: UploadFile = File(...)):
     image_bytes = await file.read()
