@@ -6,9 +6,20 @@ from tensorflow.keras.applications import ResNet50, VGG16
 from tensorflow.keras.applications.resnet50 import preprocess_input as resnet_preprocess
 from tensorflow.keras.applications.vgg16 import preprocess_input as vgg_preprocess
 from tensorflow.keras import layers 
+import os
+import urllib.request
+
+MODEL_PATH = 'garbage_classifier.keras'
+MODEL_URL = 'https://drive.google.com/file/d/11hh8UaKZERZwbMUIcP7ntIeWdcTTt41o/view?usp=sharing' 
 
 def load_garbage_model():
     """Builds and loads weights into the model ONCE at startup."""
+
+    if not os.path.exists(MODEL_PATH):
+        print("Downloading model weights... this might take a moment.")
+        urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+        print("Download complete!")
+        
     number_classes = 6 
 
     resnet_input = tf.keras.Input(shape=(224, 224, 3), name='resnet_input')
