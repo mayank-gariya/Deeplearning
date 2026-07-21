@@ -1,8 +1,0 @@
-lookup = {
-    0: "Cardboard",
-    1: "Glass",
-    2: "Metal",
-    3: "Paper",
-    4: "Plastic",
-    5: "Trash"
-}
